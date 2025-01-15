@@ -3,37 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Compra</title>
-    <!-- Link para o Materialize CSS -->
+    <title>PaymentAdvisor: Calculadora de Compra</title> <!-- Link para o Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <style>
         .input-field label.active {
             transform: translateY(-140%);
             font-size: 0.8rem;
         }
+
         @media (max-width: 600px) {
-            h3, h4, h5 {
+            h3,
+            h4,
+            h5 {
                 font-size: 1.5rem;
             }
+
             .container {
                 padding: 0 10px;
             }
         }
+
         footer {
             margin-top: 40px;
             padding: 10px 0;
             border-top: 1px solid #ddd;
         }
+
         .footer-text {
             margin-bottom: 0;
         }
+
         .github-button {
             margin-top: 10px;
         }
     </style>
 </head>
+
 <body class="container">
-    <h3 class="center-align">Calculadora de Compra: Parcelado vs. À Vista</h3>
+    <h3 class="center-align">PaymentAdvisor: Calculadora de Compra - Parcelado vs. À Vista</h3>
+    <p class="center-align">Utilize esta calculadora para decidir a melhor forma de pagar suas compras, considerando que
+        você tem o valor total disponível.</p>
     <form id="form" class="col s12" onsubmit="event.preventDefault(); validateAndCalculate();">
         <div class="row">
             <div class="input-field col s12">
@@ -68,8 +77,8 @@
         <div class="row">
             <div class="input-field col s12">
                 <select id="paymentOption" required>
-                    <option value="decreasing" selected>Saldo Decrescente</option>
-                    <option value="salary">Utilizar Salário</option>
+                    <option value="decreasing" selected>Debitar Parcelas Mensais do Investimento (CDB)</option>
+                    <option value="salary">Deixar Dinheiro Rendendo e Pagar com Salário</option>
                 </select>
                 <label for="paymentOption">Opção de Pagamento</label>
             </div>
@@ -78,22 +87,20 @@
             <button type="submit" class="btn waves-effect waves-light">Calcular</button>
         </div>
     </form>
-
     <h4 class="center-align" id="result"></h4>
     <h5 class="center-align" id="details"></h5>
-
     <footer class="center-align">
         <p class="footer-text">Desenvolvido por Roberto Almeida © 2025</p>
         <a href="https://github.com/almeidarobertop" target="_blank" class="github-button">
             <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="30" height="30">
         </a>
-        <p class="footer-text">Licença de Uso: Freeware Copyleft</p>
+        <p class="footer-text">Licença de Uso: GNU LGPL (copyleft)</p>
     </footer>
 
     <!-- Script do Materialize e JavaScript para cálculos -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var elems = document.querySelectorAll('select');
             var instances = M.FormSelect.init(elems);
         });
@@ -110,7 +117,7 @@
             if (form.checkValidity()) {
                 calculate();
             } else {
-                M.toast({html: 'Por favor, preencha todos os campos antes de calcular.'});
+                M.toast({ html: 'Por favor, preencha todos os campos antes de calcular.' });
             }
         }
 
@@ -150,11 +157,11 @@
             const currentYear = currentDate.getFullYear();
             const currentMonth = currentDate.getMonth();
             let invoiceDate = new Date(currentYear, currentMonth, invoiceDay);
-            
+
             if (invoiceDate < currentDate) {
                 invoiceDate.setMonth(currentMonth + 1);
             }
-            
+
             return invoiceDate;
         }
 
