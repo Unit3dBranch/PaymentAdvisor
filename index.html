@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Compra</title>
+    <!-- Link para o Materialize CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+        .input-field label.active {
+            transform: translateY(-140%);
+            font-size: 0.8rem;
+        }
+        @media (max-width: 600px) {
+            h3, h4, h5 {
+                font-size: 1.5rem;
+            }
+            .container {
+                padding: 0 10px;
+            }
+        }
+        footer {
+            margin-top: 40px;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+        .footer-text {
+            margin-bottom: 0;
+        }
+        .github-button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="container">
+    <h3 class="center-align">Calculadora de Compra: Parcelado vs. À Vista</h3>
+    <form id="form" class="col s12" onsubmit="event.preventDefault(); validateAndCalculate();">
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="text" id="totalValue" required>
+                <label for="totalValue">Valor Total da Compra</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="number" id="installments" required>
+                <label for="installments">Número de Parcelas sem Juros</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="number" id="discount" step="0.01" required>
+                <label for="discount">Porcentagem de Desconto para Compra à Vista (%)</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="number" id="cdiRate" step="0.01" required>
+                <label for="cdiRate">Taxa do CDI Anual (%)</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="number" id="invoiceDay" required>
+                <label for="invoiceDay">Dia de Vencimento da Fatura do Cartão</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <select id="paymentOption" required>
+                    <option value="decreasing" selected>Saldo Decrescente</option>
+                    <option value="salary">Utilizar Salário</option>
+                </select>
+                <label for="paymentOption">Opção de Pagamento</label>
+            </div>
+        </div>
+        <div class="row center-align">
+            <button type="submit" class="btn waves-effect waves-light">Calcular</button>
+        </div>
+    </form>
+
+    <h4 class="center-align" id="result"></h4>
+    <h5 class="center-align" id="details"></h5>
+
+    <footer class="center-align">
+        <p class="footer-text">Desenvolvido por Roberto Almeida © 2025</p>
+        <a href="https://github.com/almeidarobertop" target="_blank" class="github-button">
+            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" width="30" height="30">
+        </a>
+        <p class="footer-text">Licença de Uso: Freeware Copyleft</p>
+    </footer>
+
+    <!-- Script do Materialize e JavaScript para cálculos -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('select');
+            var instances = M.FormSelect.init(elems);
+        });
+
+        document.getElementById('totalValue').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = (value / 100).toFixed(2).replace('.', ',');
+            value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            e.target.value = 'R$ ' + value;
+        });
+
+        function validateAndCalculate() {
+            var form = document.getElementById('form');
+            if (form.checkValidity()) {
+                calculate();
+            } else {
+                M.toast({html: 'Por favor, preencha todos os campos antes de calcular.'});
+            }
+        }
+
+        function calculate() {
+            const value = parseFloat(document.getElementById('totalValue').value.replace('R$', '').replace(/\./g, '').replace(',', '.'));
+            const installments = parseInt(document.getElementById('installments').value);
+            const discount = parseFloat(document.getElementById('discount').value) / 100;
+            const annualCdi = parseFloat(document.getElementById('cdiRate').value) / 100;
+            const invoiceDay = parseInt(document.getElementById('invoiceDay').value);
+            const paymentOption = document.getElementById('paymentOption').value;
+
+            const currentDate = new Date();
+            const invoiceDate = getInvoiceDate(currentDate, invoiceDay);
+
+            const cashValue = value * (1 - discount);
+            const installmentValue = value / installments;
+            const discountValue = value - cashValue;
+
+            let amount = value;
+            let totalEarnings = 0;
+
+            if (paymentOption === 'decreasing') {
+                totalEarnings = calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, invoiceDate);
+            } else if (paymentOption === 'salary') {
+                totalEarnings = calculateSalaryEarnings(amount, installments, annualCdi);
+            }
+
+            const difference = discountValue - totalEarnings;
+            const suggestion = difference > 0 ? "Comprar à vista é a melhor opção." : `Comprar à prazo em ${installments} vezes é a melhor opção.`;
+            const result = `A diferença entre o valor à vista e o rendimento é de R$ ${Math.abs(difference).toFixed(2).replace('.', ',')}.`;
+            const details = generateDetails(discountValue, totalEarnings, result);
+
+            displayResults(suggestion, details);
+        }
+
+        function getInvoiceDate(currentDate, invoiceDay) {
+            const currentYear = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth();
+            let invoiceDate = new Date(currentYear, currentMonth, invoiceDay);
+            
+            if (invoiceDate < currentDate) {
+                invoiceDate.setMonth(currentMonth + 1);
+            }
+            
+            return invoiceDate;
+        }
+
+        function calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, invoiceDate) {
+            const businessDaysYear = 252;
+            const dailyCdi = Math.pow(1 + annualCdi, 1 / businessDaysYear) - 1;
+            let totalEarnings = 0;
+            const currentDate = new Date();
+
+            for (let i = 0; i < installments; i++) {
+                let daysUntilInvoice = i === 0 ? Math.floor((invoiceDate - currentDate) / (1000 * 60 * 60 * 24)) : 30;
+                const earnings = calculateEarnings(amount, dailyCdi, daysUntilInvoice);
+                const finalEarnings = calculateFinalEarnings(earnings, daysUntilInvoice);
+                amount += finalEarnings - installmentValue;
+                totalEarnings += finalEarnings;
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+
+            return totalEarnings;
+        }
+
+        function calculateSalaryEarnings(amount, installments, annualCdi) {
+            const businessDaysYear = 252;
+            const dailyCdi = Math.pow(1 + annualCdi, 1 / businessDaysYear) - 1;
+            const totalDays = installments * 30;
+            const earnings = calculateEarnings(amount, dailyCdi, totalDays);
+            return calculateFinalEarnings(earnings, totalDays);
+        }
+
+        function calculateEarnings(amount, dailyCdi, days) {
+            return amount * Math.pow(1 + dailyCdi, days) - amount;
+        }
+
+        function calculateFinalEarnings(earnings, days) {
+            const irRate = getIrRate(days);
+            const netEarnings = earnings * (1 - irRate);
+            const iof = days < 30 ? earnings * (30 - days) / 30 * 0.96 : 0;
+            return netEarnings - iof;
+        }
+
+        function getIrRate(days) {
+            if (days <= 180) return 0.225;
+            if (days <= 360) return 0.20;
+            if (days <= 720) return 0.175;
+            return 0.15;
+        }
+
+        function generateDetails(discountValue, totalEarnings, result) {
+            return `
+                Desconto à Vista: R$ ${discountValue.toFixed(2).replace('.', ',')}<br>
+                Total de Rendimentos do CDB: R$ ${totalEarnings.toFixed(2).replace('.', ',')}<br>
+                ${result}
+            `;
+        }
+
+        function displayResults(suggestion, details) {
+            document.getElementById('result').innerText = suggestion;
+            document.getElementById('details').innerHTML = details;
+        }
+    </script>
+</body>
+</html>
