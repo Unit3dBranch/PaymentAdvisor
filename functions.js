@@ -24,6 +24,7 @@ function calculate() {
     const installments = parseInt(document.getElementById('installments').value);
     const discount = parseFloat(document.getElementById('discount').value) / 100;
     const annualCdi = parseFloat(document.getElementById('cdiRate').value) / 100;
+    const cdiPercentage = parseFloat(document.getElementById('cdiPercentage').value) / 100;
     const invoiceDay = parseInt(document.getElementById('invoiceDay').value);
     const paymentOption = document.getElementById('paymentOption').value;
 
@@ -38,9 +39,9 @@ function calculate() {
     let totalEarnings = 0;
 
     if (paymentOption === 'decreasing') {
-        totalEarnings = calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, invoiceDate);
+        totalEarnings = calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, cdiPercentage, invoiceDate);
     } else if (paymentOption === 'salary') {
-        totalEarnings = calculateSalaryEarnings(amount, installments, annualCdi);
+        totalEarnings = calculateSalaryEarnings(amount, installments, annualCdi, cdiPercentage);
     }
 
     const difference = discountValue - totalEarnings;
@@ -63,9 +64,9 @@ function getInvoiceDate(currentDate, invoiceDay) {
     return invoiceDate;
 }
 
-function calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, invoiceDate) {
+function calculateDecreasingEarnings(amount, installments, installmentValue, annualCdi, cdiPercentage, invoiceDate) {
     const businessDaysYear = 252;
-    const dailyCdi = Math.pow(1 + annualCdi, 1 / businessDaysYear) - 1;
+    const dailyCdi = Math.pow(1 + (annualCdi * cdiPercentage), 1 / businessDaysYear) - 1;
     let totalEarnings = 0;
     const currentDate = new Date();
 
@@ -81,9 +82,9 @@ function calculateDecreasingEarnings(amount, installments, installmentValue, ann
     return totalEarnings;
 }
 
-function calculateSalaryEarnings(amount, installments, annualCdi) {
+function calculateSalaryEarnings(amount, installments, annualCdi, cdiPercentage) {
     const businessDaysYear = 252;
-    const dailyCdi = Math.pow(1 + annualCdi, 1 / businessDaysYear) - 1;
+    const dailyCdi = Math.pow(1 + (annualCdi * cdiPercentage), 1 / businessDaysYear) - 1;
     const totalDays = installments * 30;
     const earnings = calculateEarnings(amount, dailyCdi, totalDays);
     return calculateFinalEarnings(earnings, totalDays);
