@@ -1,12 +1,11 @@
-.input-field label.active {
-    font-size: 0.8rem;
-    transform: translateY(-140%);
+.logo {
+    margin-top: 20px;
+    max-width: 400px;
+    width: 100%;
 }
 
 @media (max-width: 600px) {
-    h3,
-    h4,
-    h5 {
+    h3, h4, h5 {
         font-size: 1.5rem;
     }
 
