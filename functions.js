@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     let elems = document.querySelectorAll('select');
     let instances = M.FormSelect.init(elems);
-});
 
-document.getElementById('totalValue').addEventListener('input', function (e) {
-    let value = e.target.value.replace(/\D/g, '');
-    value = (value / 100).toFixed(2).replace('.', ',');
-    value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    e.target.value = 'R$ ' + value;
+    document.getElementById('totalValue').addEventListener('input', function (e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = (value / 100).toFixed(2).replace('.', ',');
+        value = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        e.target.value = 'R$ ' + value;
+    });
 });
 
 function validateAndCalculate() {
