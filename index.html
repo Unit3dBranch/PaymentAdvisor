@@ -11,9 +11,14 @@
 </head>
 
 <body class="container">
-    <h3 class="center-align">PaymentAdvisor: Calculadora de Compra - Parcelado vs. À Vista</h3>
+    <div class="row center-align">
+        <img class="logo" src="images/paymentAdvisor_logo.jpg" alt="Payment Advisor logo" title="Payment Advisor">
+    </div>
+    <h3 class="center-align">Devo Parcelar ou Comprar À Vista?</h3>
     <p class="center-align">Utilize esta calculadora para decidir a melhor forma de pagar suas compras, considerando que
-        você tem o valor total disponível.</p>
+        você teria o valor total disponível para investir em um CDB para que então fique rendendo dia a dia até o final do
+        parcelalmento (utilizando salário como fonte pagadora da parcela), ou ir pagando as parcelas a partir do Investimento
+        até que seu saldo chegue a zero.</p>
     <form id="form" class="col s12" onsubmit="event.preventDefault(); validateAndCalculate();">
         <div class="row">
             <div class="input-field col s12">
@@ -48,8 +53,8 @@
         <div class="row">
             <div class="input-field col s12">
                 <select id="paymentOption" required>
-                    <option value="decreasing" selected>Debitar Parcelas Mensais do Investimento (CDB)</option>
-                    <option value="salary">Deixar Dinheiro Rendendo e Pagar com Salário</option>
+                    <option value="decreasing" selected>Saldo Decrescente - Debitar Parcelas Mensais Diretamente do Investimento (CDB)</option>
+                    <option value="salary">Saldo Crescente - Manter CDB Intacto e Pagar Parcelas com sua Renda Mensal (Salário)</option>
                 </select>
                 <label for="paymentOption">Opção de Pagamento</label>
             </div>
